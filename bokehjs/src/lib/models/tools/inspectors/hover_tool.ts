@@ -457,6 +457,7 @@ export class HoverToolView extends InspectToolView {
         }
         const hex = opts.indexOf("hex") >= 0
         const swatch = opts.indexOf("swatch") >= 0
+        const hideColorValue = opts.indexOf("hideColorValue") >= 0
         let color = isNumber(i) ? column[i] : null
         if (color == null) {
           value_els[j].textContent = "(null)"
@@ -464,7 +465,8 @@ export class HoverToolView extends InspectToolView {
         }
         if (hex)
           color = color2hex(color)
-        value_els[j].textContent = color
+        if (!hideColorValue)
+          value_els[j].textContent = color
         if (swatch) {
           swatch_els[j].style.backgroundColor = color
           display(swatch_els[j])
