@@ -444,10 +444,10 @@ export class HoverToolView extends InspectToolView {
     const value_els = el.querySelectorAll<HTMLElement>("[data-value]")
     const swatch_els = el.querySelectorAll<HTMLElement>("[data-swatch]")
 
-    const color_re = /\$color(\[.*\])?:(\w*)/
+    const type= /\$((color)|(swatch))(\[.*\])?:(\w*)/g
 
     for (const [[, value], j] of enumerate(tooltips)) {
-      const result = value.match(color_re)
+      const result = value.match(type)
       if (result != null) {
         const [, opts="", colname] = result
         const column = ds.get_column(colname) // XXX: change to columnar ds
@@ -457,20 +457,24 @@ export class HoverToolView extends InspectToolView {
         }
         const hex = opts.indexOf("hex") >= 0
         const swatch = opts.indexOf("swatch") >= 0
-        const hideColorValue = opts.indexOf("hideColorValue") >= 0
         let color = isNumber(i) ? column[i] : null
         if (color == null) {
           value_els[j].textContent = "(null)"
           continue
         }
-        if (hex)
-          color = color2hex(color)
-        if (!hideColorValue)
+        if (colname == "color") {
+          if (hex)
+            color = color2hex(color)
           value_els[j].textContent = color
-        if (swatch) {
+          if (swatch) {
+            swatch_els[j].style.backgroundColor = color
+            display(swatch_els[j])
+          }
+        } else if (colname == "swatch") {
           swatch_els[j].style.backgroundColor = color
           display(swatch_els[j])
         }
+        
       } else {
         const content = replace_placeholders(value.replace("$~", "$data_"), ds, i, this.model.formatters, vars)
         if (isString(content)) {
